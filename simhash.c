@@ -39,13 +39,22 @@ ZEND_DECLARE_MODULE_GLOBALS(simhash)
 /* True global resources - no need for thread safety here */
 static int le_simhash;
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_genhash,0,0,2)
+ZEND_ARG_INFO(1,dataset)
+ZEND_ARG_INFO(1,weights)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_cmphash,0,0,2)
+ZEND_ARG_INFO(1,s1)
+ZEND_ARG_INFO(1,s2)
+ZEND_END_ARG_INFO()
 /* {{{ simhash_functions[]
  *
  * Every user visible function must have an entry in simhash_functions[].
  */
 const zend_function_entry simhash_functions[] = {
-    PHP_FE(genhash,        NULL)
-    PHP_FE(cmphash,        NULL)
+    PHP_FE(genhash,arginfo_genhash)
+    PHP_FE(cmphash,arginfo_cmphash)
 	PHP_FE_END	/* Must be the last line in simhash_functions[] */
 };
 /* }}} */
@@ -154,7 +163,7 @@ PHP_FUNCTION(genhash) {
     PHP_SHA1_CTX sha1_context;
 
     PHP_SHA1Init(&sha1_context);
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "az", &dataset, &weights) == FAILURE) {
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), "az", &dataset, &weights) == FAILURE) {
         RETURN_NULL();
     }
     if(Z_TYPE_P(weights) == IS_ARRAY) {
@@ -229,7 +238,7 @@ PHP_FUNCTION(cmphash) {
     char *fp1, *fp2;
     zend_string *s1, *s2;
     int len1, len2;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "SS", &s1, &s2) == FAILURE) {
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), "SS", &s1, &s2) == FAILURE) {
         RETVAL_DOUBLE(0);
     }
 	len1 = ZSTR_LEN(s1);
